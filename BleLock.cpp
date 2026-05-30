@@ -290,6 +290,11 @@ void BleLock::loop() {
   }
 }
 
+void BleLock::stop() {
+  BLEDevice::deinit(true); // Полная очистка памяти и остановка BLE
+  logLine("BLE stopped to free memory for OTA.");
+}
+
 void BleLock::setupBle() {
   BLEDevice::init(_deviceName);
 

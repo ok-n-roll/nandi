@@ -18,3 +18,12 @@ const uint32_t OWNER_RESET_VERSION = 3;
 const unsigned long UNKNOWN_AUTH_TIMEOUT_MS = 30000;
 const unsigned long FIRST_OWNER_AUTH_TIMEOUT_MS = 30000;
 const unsigned long RELAY_OFF_GRACE_MS = 10000;
+
+// Hardware pins
+const int DHT_PIN = 33;
+const int DISPLAY_SCL_PIN = 26;
+const int DISPLAY_SDA_PIN = 25;
+// GPS pins (assumes UART2)
+const int GPS_RX_PIN = 16; // RX2
+const int GPS_TX_PIN = 17; // TX2
+

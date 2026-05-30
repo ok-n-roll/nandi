@@ -17,9 +17,11 @@ class BleLock {
 public:
   BleLock(const char *deviceName, int clearOwnerPin, uint32_t ownerResetVersion, RelayController &relay);
 
-  void begin();
-  void loop();
-  void clearOwnerAndBonds();
+    void begin();
+    void loop();
+    void stop(); // Новый метод
+    void clearOwnerAndBonds();
+
 
 private:
   friend class RelayServerCallbacks;
