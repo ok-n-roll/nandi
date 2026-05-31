@@ -15,8 +15,16 @@ public:
   void loop();
 
 private:
+  void handleCloudUpdate(); // New helper method
+
   RelayController &_relay;
   BleLock &_bleLock;
   GPSManager &_gps;
   WebServer _server;
+
+  bool _triggerCloudUpdate = false;
+  String _wifiSsid;
+  String _wifiPass;
+  String _firmwareUrl;
 };
+
