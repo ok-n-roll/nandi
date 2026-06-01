@@ -12,8 +12,8 @@
 RelayController relay(RELAY_PIN, RELAY_ACTIVE_LEVEL);
 BleLock bleLock(BLE_DEVICE_NAME, CLEAR_OWNER_PIN, OWNER_RESET_VERSION, relay);
 GPSManager gps(GPS_RX_PIN, GPS_TX_PIN);
-WebServerManager webServerManager(relay, bleLock, gps);
 DHTManager dht(DHT_PIN);
+WebServerManager webServerManager(relay, bleLock, gps, dht);
 DisplayManager display(DISPLAY_SCL_PIN, DISPLAY_SDA_PIN);
 
 unsigned long lastDisplayUpdate = 0;

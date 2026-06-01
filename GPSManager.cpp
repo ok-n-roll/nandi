@@ -31,6 +31,7 @@ void GPSManager::loop() {
                     if (isMoving && dist < 0.5) { // Sanity check: individual update shouldn't exceed 500m (e.g. signal jumps)
                         _dailyOdometer += dist;
                         _totalOdometer += dist;
+                        _serviceOdometer += dist;
                     }
                 }
                 
@@ -63,4 +64,8 @@ String GPSManager::getTimeString() {
 
 float GPSManager::getDailyOdometer() { return _dailyOdometer; }
 float GPSManager::getTotalOdometer() { return _totalOdometer; }
+float GPSManager::getServiceOdometer() { return _serviceOdometer; }
+double GPSManager::getLat() { return _lastLat; }
+double GPSManager::getLon() { return _lastLon; }
 void GPSManager::resetDailyOdometer() { _dailyOdometer = 0.0; }
+void GPSManager::resetServiceOdometer() { _serviceOdometer = 0.0; }

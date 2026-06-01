@@ -15,13 +15,18 @@ public:
     String getTimeString();
     float getDailyOdometer();
     float getTotalOdometer();
+    float getServiceOdometer();
     void resetDailyOdometer();
+    void resetServiceOdometer();
+    double getLat();
+    double getLon();
 
 private:
     TinyGPSPlus _gps;
     HardwareSerial _serial;
     float _dailyOdometer = 0.0;
     float _totalOdometer = 0.0;
+    float _serviceOdometer = 0.0;
     double _lastLat = 0.0;
     double _lastLon = 0.0;
     unsigned long _lastUpdate = 0;
