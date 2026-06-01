@@ -41,7 +41,10 @@ void loop() {
   gps.loop();
   dht.loop();
   
-  if (millis() - lastDisplayUpdate >= 500) {
+  bool active = bleLock.isUnlocked();
+  display.setPower(active);
+  
+  if (active && (millis() - lastDisplayUpdate >= 500)) {
     display.update(gps, dht);
     lastDisplayUpdate = millis();
   }

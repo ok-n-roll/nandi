@@ -12,6 +12,7 @@ public:
     DisplayManager(int scl, int sda);
     void begin();
     void update(GPSManager& gps, DHTManager& dht);
+    void setPower(bool on);
 
 private:
     Adafruit_SSD1306 _display;
@@ -19,5 +20,6 @@ private:
     int _sda;
     int _animationFrame = 0;
     unsigned long _lastAnimationChange = 0;
+    bool _isPoweredOn = true;
 };
 

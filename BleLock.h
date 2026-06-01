@@ -16,6 +16,10 @@ public:
     void stop(); 
     void clearOwnerAndBonds();
 
+    bool isOwnerAuthenticated() const { return _ownerAuthenticated; }
+    bool isConnected() const { return _bleConnected; }
+    bool isUnlocked() const { return _bleConnected && _ownerAuthenticated; }
+
     // Make friends with Callbacks so they can access private members
     friend class RelayServerCallbacks;
     friend class RelaySecurityCallbacks;
