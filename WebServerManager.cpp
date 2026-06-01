@@ -39,17 +39,20 @@ void WebServerManager::begin() {
     // Status
     html += "<div class='card'><h2>Status</h2>";
     if (_dht.isDataValid()) {
-        html += "<p>Temp: " + String(_dht.getTemperature(), 1) + "°C | Hum: " + String(_dht.getHumidity(), 1) + "%</p>";
+      html += "<p>Temp: " + String(_dht.getTemperature(), 1) +
+              "°C | Hum: " + String(_dht.getHumidity(), 1) + "%</p>";
     } else {
-        html += "<p>Temp/Hum: Reading...</p>";
+      html += "<p>Temp/Hum: Reading...</p>";
     }
     html += "<p>Daily: " + String(_gps.getDailyOdometer(), 1) + " km</p>";
 
     html +=
         "<p>Общий пробег: " + String(_gps.getTotalOdometer(), 1) + " km</p>";
-    html += "<p><a href='https://www.google.com/maps/search/?api=1&query=" +
-            String(_gps.getLat(), 6) + "," + String(_gps.getLon(), 6) +
-            "' target='_blank'>View on Map</a></p>";
+    if (_gps.isFixed()) {
+      html += "<p><a href='https://www.google.com/maps/search/?api=1&query=" +
+              String(_gps.getLat(), 6) + "," + String(_gps.getLon(), 6) +
+              "' target='_blank'>View on Map</a></p>";
+    }
     html += "</div>";
 
     html += "<div class='card'>";
@@ -110,13 +113,12 @@ void WebServerManager::begin() {
     String html = "<!DOCTYPE html><html><head>";
     html += "<meta charset='UTF-8'><meta name='viewport' "
             "content='width=device-width, initial-scale=1.0'>";
-    html += "<title>Updating...</title>";
+    html += "<title>Обновление...</title>";
     html += "<style>body { font-family: sans-serif; background: #121212; "
             "color: #fff; padding: 20px; text-align: center; }</style>";
     html += "<script>setTimeout(() => location.href='/update-status', "
             "2000);</script>";
-    html += "</head><body><h2>Starting update...</h2><p>Please "
-            "wait...</p></body></html>";
+    html += "</head><body><h2>Обновление</h2><p>Подождите...</p></body></html>";
     _server.send(200, "text/html", html);
     _triggerCloudUpdate = true;
   });
@@ -136,18 +138,23 @@ void WebServerManager::begin() {
 
   _server.on("/reset", HTTP_POST, [this]() {
     _bleLock.clearOwnerAndBonds();
-    
-    String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'><title>Reset</title>";
-    html += "<style>body{font-family:sans-serif;background:#121212;color:#fff;padding:20px;text-align:center;} .card{background:#1e1e1e;padding:15px;border-radius:10px;}</style></head><body>";
+
+    String html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><meta "
+                  "name='viewport' content='width=device-width, "
+                  "initial-scale=1.0'><title>Reset</title>";
+    html += "<style>body{font-family:sans-serif;background:#121212;color:#fff;"
+            "padding:20px;text-align:center;} "
+            ".card{background:#1e1e1e;padding:15px;border-radius:10px;}</"
+            "style></head><body>";
     html += "<div class='card'><h2>Успешно</h2><p>Все данные сброшены.</p>";
-    html += "<p>Теперь нужно подключить телефон по Bluetooth. <b>Только первый подключившийся телефон станет владельцем!</b></p>";
+    html += "<p>Теперь нужно подключить телефон по Bluetooth. <b>Только первый "
+            "подключившийся телефон станет владельцем!</b></p>";
     html += "<p><a href='/'>Назад</a></p></div></body></html>";
     _server.send(200, "text/html", html);
-    
+
     delay(1000);
     ESP.restart();
   });
-
 
   _server.on("/reset-daily", HTTP_POST, [this]() {
     _gps.resetDailyOdometer();
