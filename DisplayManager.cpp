@@ -26,6 +26,26 @@ void DisplayManager::setPower(bool on) {
 }
 
 
+void DisplayManager::update(GPSManager& gps, DHTManager& dht) {
+  _display.clearDisplay();
+
+  // --- Top Row (Time, Humidity, Temperature) ---
+  _display.setTextSize(2);
+  _display.setTextColor(WHITE);
+
+  // Time (Left) and Humidity (Next to it)
+  _display.setCursor(0, 0);
+  _display.print(gps.getTimeString());
+  _display.print(" ");
+
+  _display.setTextSize(1);
+  if (dht.isDataValid()) {
+    _display.print(String((int)dht.getHumidity()));
+    _display.print("%");
+  } else {
+    _display.print("-");
+  }
+
   // Temperature (Strictly Right Aligned)
   if (dht.isDataValid()) {
     String tempStr = String((int)dht.getTemperature());
@@ -52,8 +72,7 @@ void DisplayManager::setPower(bool on) {
   int speedInt = 0;
   int speedFrac = 0;
 
-  // Only show speed if GPS has a fix and speed is above a minimum threshold (3
-  // km/h)
+  // Only show speed if GPS has a fix and speed is above a minimum threshold (3 km/h)
   if (gps.isFixed() && currentSpeed >= 3.0) {
     speedInt = floor(currentSpeed);
     speedFrac = round((currentSpeed - speedInt) * 10);

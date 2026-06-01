@@ -1,10 +1,11 @@
 #include "WebServerManager.h"
-#include <WiFi.h>
-#include <Preferences.h>
 #include <HTTPUpdate.h>
+#include <Preferences.h>
+#include <WiFi.h>
 #include <WiFiClientSecure.h>
 
-WebServerManager::WebServerManager(RelayController &relay, BleLock &bleLock, GPSManager &gps)
+WebServerManager::WebServerManager(RelayController &relay, BleLock &bleLock,
+                                   GPSManager &gps)
     : _relay(relay), _bleLock(bleLock), _gps(gps), _server(80) {}
 
 void WebServerManager::begin() {
@@ -20,49 +21,60 @@ void WebServerManager::begin() {
   WiFi.softAP("Nandi", "oprst8090");
 
   _server.on("/", HTTP_GET, [this]() {
-    
     String html = "<!DOCTYPE html><html><head>";
     html += "<meta charset='UTF-8'>";
-    html += "<meta name='viewport' content='width=device-width, initial-scale=1.0'>";
+    html += "<meta name='viewport' content='width=device-width, "
+            "initial-scale=1.0'>";
     html += "<title>Nandi</title>";
     html += "<style>";
-    html += "body { font-family: -apple-system, sans-serif; background-color: #121212; color: #e0e0e0; padding: 15px; margin: 0; }";
-    html += ".card { background: #1e1e1e; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }";
+    html += "body { font-family: -apple-system, sans-serif; background-color: "
+            "#121212; color: #e0e0e0; padding: 15px; margin: 0; }";
+    html += ".card { background: #1e1e1e; padding: 20px; border-radius: 12px; "
+            "margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }";
     html += "h2 { color: #ff9800; font-size: 18px; margin-top: 0; }";
-    html += "input { width: 100%; padding: 10px; margin: 8px 0; background: #2a2a2a; border: 1px solid #444; border-radius: 6px; color: #fff; box-sizing: border-box; }";
-    html += "button { width: 100%; padding: 12px; background-color: #4caf50; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; }";
+    html += "input { width: 100%; padding: 10px; margin: 8px 0; background: "
+            "#2a2a2a; border: 1px solid #444; border-radius: 6px; color: #fff; "
+            "box-sizing: border-box; }";
+    html += "button { width: 100%; padding: 12px; background-color: #4caf50; "
+            "color: white; border: none; border-radius: 6px; font-weight: "
+            "bold; cursor: pointer; font-size: 15px; }";
     html += "button.btn-blue { background-color: #2196f3; }";
     html += "button.btn-red { background-color: #f44336; }";
     html += "</style></head><body>";
-    
-    html += "<h1>Nandi</h1>";
-    
-    // 2. Cloud OTA Update Card
-    html += "<div class='card'>";
-    html += "<h2>Cloud Firmware Update (GitHub)</h2>";
-    html += "<form action='/save-ota' method='POST'>";
-    html += "Home WiFi SSID:<input name='ssid' value='" + _wifiSsid + "'>";
-    html += "Home WiFi Password:<input type='password' name='pass' value='" + _wifiPass + "'>";
-    html += "Firmware URL (.bin):<input name='url' value='" + _firmwareUrl + "' placeholder='https://...'>";
-    html += "<button type='submit' class='btn-blue' style='margin-bottom: 10px;'>Save WiFi & URL</button></form>";
-    html += "<form action='/start-cloud-update' method='POST'><button type='submit'>Start Cloud Update</button></form>";
-    html += "</div>";
-    
+
+    html += "<h1>Nandi 0.1</h1>";
+
     // 3. Maintenance Card
     html += "<div class='card'>";
-    html += "<h2>Maintenance</h2>";
-    html += "<form action='/reset-daily' method='POST'><button type='submit' class='btn-blue' style='margin-bottom: 10px;'>Reset Daily Odometer</button></form>";
-    html += "<form action='/reset' method='POST'><button type='submit' class='btn-red'>Reset Owner (Clear BLE)</button></form>";
+    html += "<form action='/reset-daily' method='POST'><button type='submit' "
+            "class='btn-blue' style='margin-bottom: 10px;'>Сбросить суточный "
+            "пробег</button></form>";
+    html += "<form action='/reset' method='POST'><button type='submit' "
+            "class='btn-red'>Сбросить владельца</button></form>";
     html += "</div>";
-    
+
+    // 2. Cloud OTA Update Card
+    html += "<div class='card'>";
+    html += "<h2>Обновление прошивки</h2>";
+    html += "<form action='/save-ota' method='POST'>";
+    html += "WiFi SSID:<input name='ssid' value='" + _wifiSsid + "'>";
+    html += "WiFi Пароль:<input type='password' name='pass' value='" +
+            _wifiPass + "'>";
+    html += "Firmware URL (.bin):<input name='url' value='" + _firmwareUrl +
+            "' placeholder='https://...'>";
+    html += "<button type='submit' class='btn-blue' style='margin-bottom: "
+            "10px;'>Сохранить WiFi и URL</button></form>";
+    html += "<form action='/start-cloud-update' method='POST'><button "
+            "type='submit'>Начать обновление</button></form>";
+    html += "</div>";
+
     html += "</body></html>";
-    
+
     _server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     _server.sendHeader("Pragma", "no-cache");
     _server.sendHeader("Expires", "-1");
     _server.send(200, "text/html", html);
   });
-
 
   _server.on("/save-ota", HTTP_POST, [this]() {
     _wifiSsid = _server.arg("ssid");
@@ -81,8 +93,31 @@ void WebServerManager::begin() {
   });
 
   _server.on("/start-cloud-update", HTTP_POST, [this]() {
-    _server.send(200, "text/html", "<html><body><h2>Connecting to WiFi and downloading firmware...</h2><p>Please wait 1-2 minutes. The device will reboot on success.</p></body></html>");
+    String html = "<!DOCTYPE html><html><head>";
+    html += "<meta charset='UTF-8'><meta name='viewport' "
+            "content='width=device-width, initial-scale=1.0'>";
+    html += "<title>Updating...</title>";
+    html += "<style>body { font-family: sans-serif; background: #121212; "
+            "color: #fff; padding: 20px; text-align: center; }</style>";
+    html += "<script>setTimeout(() => location.href='/update-status', "
+            "2000);</script>";
+    html += "</head><body><h2>Starting update...</h2><p>Please "
+            "wait...</p></body></html>";
+    _server.send(200, "text/html", html);
     _triggerCloudUpdate = true;
+  });
+
+  _server.on("/update-status", HTTP_GET, [this]() {
+    String html = "<!DOCTYPE html><html><head>";
+    html += "<meta charset='UTF-8'><meta name='viewport' "
+            "content='width=device-width, initial-scale=1.0'>";
+    html += "<title>Status</title>";
+    html += "<style>body { font-family: sans-serif; background: #121212; "
+            "color: #fff; padding: 20px; }</style>";
+    html += "</head><body><h2>Update in progress</h2>";
+    html += "<p>Check device logs or wait for reboot.</p>";
+    html += "<a href='/'>Back to Home</a></body></html>";
+    _server.send(200, "text/html", html);
   });
 
   _server.on("/reset", HTTP_POST, [this]() {
@@ -119,7 +154,7 @@ void WebServerManager::loop() {
 
 void WebServerManager::handleCloudUpdate() {
   Serial.println("Starting HTTP Cloud Update...");
-  
+
   // 1. Stop BLE completely to free heap memory
   _bleLock.stop();
   delay(500);
@@ -127,7 +162,7 @@ void WebServerManager::handleCloudUpdate() {
   // 2. Connect to home WiFi
   Serial.print("Connecting to Home WiFi: ");
   Serial.println(_wifiSsid);
-  
+
   WiFi.disconnect();
   WiFi.mode(WIFI_AP_STA); // Keep AP active, but act as client too
   WiFi.begin(_wifiSsid.c_str(), _wifiPass.c_str());
@@ -140,7 +175,8 @@ void WebServerManager::handleCloudUpdate() {
   }
 
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("\nFailed to connect to Home WiFi. Reverting to normal AP mode.");
+    Serial.println(
+        "\nFailed to connect to Home WiFi. Reverting to normal AP mode.");
     WiFi.mode(WIFI_AP);
     return;
   }
@@ -148,16 +184,24 @@ void WebServerManager::handleCloudUpdate() {
   Serial.println("\nWiFi Connected! Downloading update from URL...");
   Serial.println(_firmwareUrl);
 
-  // 3. Launch secure HTTPS client for GitHub (bypassing SSL verification for convenience and simplicity)
+  // 3. Launch secure HTTPS client for GitHub (bypassing SSL verification for
+  // convenience and simplicity)
   WiFiClientSecure client;
   client.setInsecure(); // No certificate verification
 
   // 4. Trigger HTTP Update
   httpUpdate.rebootOnUpdate(true);
+
+  // Добавляем логирование прогресса для отладки
+  httpUpdate.onProgress([](int cur, int total) {
+    Serial.printf("Update progress: %d%%\n", (cur * 100) / total);
+  });
+
   t_httpUpdate_return ret = httpUpdate.update(client, _firmwareUrl);
 
   if (ret == HTTP_UPDATE_FAILED) {
-    Serial.printf("HTTP Update failed: (%d): %s\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
+    Serial.printf("HTTP Update failed: (%d): %s\n", httpUpdate.getLastError(),
+                  httpUpdate.getLastErrorString().c_str());
     // Revert to normal state if failed
     WiFi.mode(WIFI_AP);
   }
