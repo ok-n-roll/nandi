@@ -20,8 +20,6 @@ void WebServerManager::begin() {
   WiFi.softAP("Nandi", "oprst8090");
 
   _server.on("/", HTTP_GET, [this]() {
-    String appleKey, androidKey;
-    _bleLock.getTrackerKeys(appleKey, androidKey);
     
     String html = "<!DOCTYPE html><html><head>";
     html += "<meta charset='UTF-8'>";
@@ -39,15 +37,6 @@ void WebServerManager::begin() {
     
     html += "<h1>Nandi</h1>";
     
-    // 1. Tracker Keys Card
-    html += "<div class='card'>";
-    html += "<h2>Tracker Settings</h2>";
-    html += "<form action='/save-keys' method='POST'>";
-    html += "Apple Find My Key:<input name='appleKey' value='" + appleKey + "' placeholder='Base64 Key'>";
-    html += "Android Key:<input name='androidKey' value='" + androidKey + "'>";
-    html += "<button type='submit'>Save Keys</button></form>";
-    html += "</div>";
-
     // 2. Cloud OTA Update Card
     html += "<div class='card'>";
     html += "<h2>Cloud Firmware Update (GitHub)</h2>";
@@ -58,7 +47,7 @@ void WebServerManager::begin() {
     html += "<button type='submit' class='btn-blue' style='margin-bottom: 10px;'>Save WiFi & URL</button></form>";
     html += "<form action='/start-cloud-update' method='POST'><button type='submit'>Start Cloud Update</button></form>";
     html += "</div>";
-
+    
     // 3. Maintenance Card
     html += "<div class='card'>";
     html += "<h2>Maintenance</h2>";
@@ -74,14 +63,6 @@ void WebServerManager::begin() {
     _server.send(200, "text/html", html);
   });
 
-  _server.on("/save-keys", HTTP_POST, [this]() {
-    String appleKey = _server.arg("appleKey");
-    String androidKey = _server.arg("androidKey");
-    _bleLock.setTrackerKeys(appleKey, androidKey);
-    _server.send(200, "text/plain", "Keys saved. Rebooting to apply...");
-    delay(1000);
-    ESP.restart();
-  });
 
   _server.on("/save-ota", HTTP_POST, [this]() {
     _wifiSsid = _server.arg("ssid");
@@ -105,9 +86,11 @@ void WebServerManager::begin() {
   });
 
   _server.on("/reset", HTTP_POST, [this]() {
+    _server.sendHeader("Location", "/");
+    _server.send(303);
+    delay(500);
     _bleLock.clearOwnerAndBonds();
-    _server.send(200, "text/plain", "Owner reset. Rebooting...");
-    delay(1000);
+    delay(500);
     ESP.restart();
   });
 

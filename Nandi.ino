@@ -20,8 +20,12 @@ unsigned long lastDisplayUpdate = 0;
 
 void setup() {
   Serial.begin(115200);
-  delay(200);
-  logLine("Boot. Firmware diagnostics enabled.");
+  delay(1000); // Даем время для стабилизации питания и очистки буфера Serial
+  Serial.println();
+  Serial.println();
+  Serial.println("======================================");
+  Serial.println("      Nandi System Booting...         ");
+  Serial.println("======================================");
 
   relay.begin();
   bleLock.begin();

@@ -17,5 +17,7 @@ private:
     Adafruit_SSD1306 _display;
     int _scl;
     int _sda;
+    int _animationFrame = 0;
+    unsigned long _lastAnimationChange = 0;
 };
 

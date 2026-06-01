@@ -8,8 +8,6 @@
 #include <Preferences.h>
 #include "RelayController.h"
 
-enum BleMode { MODE_LOCK, MODE_TRACKER };
-
 class BleLock {
 public:
     BleLock(const char *deviceName, int clearOwnerPin, uint32_t ownerResetVersion, RelayController &relay);
@@ -17,8 +15,6 @@ public:
     void loop();
     void stop(); 
     void clearOwnerAndBonds();
-    void setTrackerKeys(const String &appleKey, const String &androidKey);
-    void getTrackerKeys(String &appleKey, String &androidKey);
 
     // Make friends with Callbacks so they can access private members
     friend class RelayServerCallbacks;
@@ -27,7 +23,6 @@ public:
 private:
     void setupBle();
     void startAdvertising();
-    void startTrackerAdvertising();
     void loadOwner();
     void finishOwnerSetup();
     void removeNonOwnerBonds();
@@ -46,12 +41,6 @@ private:
     void dumpBondList(const String &reason);
     void saveOwnerIdentity(const String &address, const String &irk);
 
-    BleMode _currentMode = MODE_LOCK;
-    unsigned long _lastModeSwitch = 0;
-    
-    String _appleKey;
-    String _androidKey;
-    
     const char *_deviceName;
     int _clearOwnerPin;
     uint32_t _ownerResetVersion;
