@@ -7,9 +7,32 @@ DisplayManager::DisplayManager(int scl, int sda)
 void DisplayManager::begin() {
   Wire.begin(_sda, _scl);
   if (!_display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    // Serial.println(F("SSD1306 allocation failed"));
+    Serial.println(F("SSD1306 allocation failed! Display disabled."));
+    _initialized = false;
+    return;
   }
+  _initialized = true;
   _display.clearDisplay();
+  _display.setTextColor(WHITE);
+  _display.display();
+}
+
+void DisplayManager::setPower(bool on) {
+    if (!_initialized) return;
+    if (on == _isPoweredOn) return;
+    
+    if (on) {
+        _display.ssd1306_command(SSD1306_DISPLAYON);
+    } else {
+        _display.ssd1306_command(SSD1306_DISPLAYOFF);
+    }
+    _isPoweredOn = on;
+}
+
+void DisplayManager::update(GPSManager& gps, DHTManager& dht) {
+  if (!_initialized) return;
+  _display.clearDisplay();
+
   _display.setTextColor(WHITE);
   _display.display();
 }

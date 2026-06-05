@@ -21,5 +21,6 @@ private:
     int _animationFrame = 0;
     unsigned long _lastAnimationChange = 0;
     bool _isPoweredOn = true;
+    bool _initialized = false;
 };
 
