@@ -1,6 +1,6 @@
 #include "DHTManager.h"
 
-DHTManager::DHTManager(int pin) : _dht(pin, DHT22) {}
+DHTManager::DHTManager(int pin) : _dht(pin, DHT11) {}
 
 void DHTManager::begin() {
     _dht.begin();
