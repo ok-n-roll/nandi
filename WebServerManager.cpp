@@ -34,7 +34,7 @@ void WebServerManager::begin() {
             "0;border:none;border-radius:5px;font-weight:bold;} "
             ".btn-blue{background:#2196f3;color:#fff;} "
             ".btn-red{background:#f44336;color:#fff;}</style></head><body>";
-    html += "<h1>Nandi Admin</h1>";
+    html += "<h1>Nandi 0.1</h1>";
 
     // Status
     html += "<div class='card'><h2>Status</h2>";
