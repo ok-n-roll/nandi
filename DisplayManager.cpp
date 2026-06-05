@@ -33,25 +33,6 @@ void DisplayManager::update(GPSManager& gps, DHTManager& dht) {
   if (!_initialized) return;
   _display.clearDisplay();
 
-  _display.setTextColor(WHITE);
-  _display.display();
-}
-
-void DisplayManager::setPower(bool on) {
-    if (on == _isPoweredOn) return;
-    
-    if (on) {
-        _display.ssd1306_command(SSD1306_DISPLAYON);
-    } else {
-        _display.ssd1306_command(SSD1306_DISPLAYOFF);
-    }
-    _isPoweredOn = on;
-}
-
-
-void DisplayManager::update(GPSManager& gps, DHTManager& dht) {
-  _display.clearDisplay();
-
   // --- Top Row (Time, Humidity, Temperature) ---
   _display.setTextSize(2);
   _display.setTextColor(WHITE);
