@@ -6,7 +6,23 @@ GPSManager::GPSManager(int rxPin, int txPin) : _serial(2) { // UART2
 }
 
 void GPSManager::begin() {
-    // Already started in constructor, but can add extra initialization if needed
+    _prefs.begin("gps-odometer", false);
+    _dailyOdometer = _prefs.getFloat("daily", 0.0);
+    _totalOdometer = _prefs.getFloat("total", 0.0);
+    _serviceOdometer = _prefs.getFloat("service", 0.0);
+    _lastSavedDaily = _dailyOdometer;
+    _lastSavedTotal = _totalOdometer;
+    _lastSavedService = _serviceOdometer;
+}
+
+void GPSManager::saveOdometers() {
+    _prefs.putFloat("daily", _dailyOdometer);
+    _prefs.putFloat("total", _totalOdometer);
+    _prefs.putFloat("service", _serviceOdometer);
+    _lastSavedDaily = _dailyOdometer;
+    _lastSavedTotal = _totalOdometer;
+    _lastSavedService = _serviceOdometer;
+    _lastSaveTime = millis();
 }
 
 void GPSManager::loop() {
@@ -41,6 +57,13 @@ void GPSManager::loop() {
             }
         }
     }
+
+    // Save periodically if data changed (every 60 seconds)
+    if (millis() - _lastSaveTime > 60000) {
+        if (_dailyOdometer != _lastSavedDaily || _totalOdometer != _lastSavedTotal || _serviceOdometer != _lastSavedService) {
+            saveOdometers();
+        }
+    }
 }
 
 
@@ -67,5 +90,5 @@ float GPSManager::getTotalOdometer() { return _totalOdometer; }
 float GPSManager::getServiceOdometer() { return _serviceOdometer; }
 double GPSManager::getLat() { return _lastLat; }
 double GPSManager::getLon() { return _lastLon; }
-void GPSManager::resetDailyOdometer() { _dailyOdometer = 0.0; }
-void GPSManager::resetServiceOdometer() { _serviceOdometer = 0.0; }
+void GPSManager::resetDailyOdometer() { _dailyOdometer = 0.0; saveOdometers(); }
+void GPSManager::resetServiceOdometer() { _serviceOdometer = 0.0; saveOdometers(); }
